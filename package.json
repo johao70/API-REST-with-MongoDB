@@ -1,35 +1,22 @@
 {
-  "name": "mondb",
+  "name": "mongoose_server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
-    "start": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon ./setup/index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Johao Perlaza",
+  "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-multiparty": "^2.2.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "mongoose": "^5.8.7",
-    "nodemon": "^2.0.2"
+    "mongoose": "^5.9.20"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.19.1"
-  },
-  "nodemonConfig": {
-    "restartable": "rs",
-    "ignore": [
-      "node_modules/**/node_modules"
-    ],
-    "dev": "2500",
-    "env": {
-      "NODE_ENV": "development",
-      "PORT": 4000
-    }
+    "nodemon": "^2.0.4"
   }
 }
