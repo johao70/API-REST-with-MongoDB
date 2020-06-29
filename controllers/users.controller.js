@@ -1,5 +1,7 @@
 const fs = require("fs"),
-  User = require("../models/userModel");
+  User = require("../models/userModel"),
+  bcrypt = require("bcrypt"),
+  jwt = require("jsonwebtoken");
 
 let getUsers = (req, res) => {
   User.find()
@@ -62,21 +64,33 @@ let getUserByName = (req, res) => {
 let postUser = (req, res) => {
   let data = req.body.data;
 
-  User.create(data)
-    .then((data) => {
-      res.status(200).json({
-        ok: true,
-        data: data,
-        msg: "ready",
+  if (!data.password || !data.email) {
+    res.status(404).send("Invalid user or password");
+  } else {
+    let encryptedPassword = bcrypt.hashSync(
+      data.password,
+      bcrypt.genSaltSync(10)
+    );
+
+    data.password = encryptedPassword;
+    data.sessionID = req.sessionID;
+
+    User.create(data)
+      .then((data) => {
+        res.status(200).json({
+          ok: true,
+          data: data,
+          msg: "ready",
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          ok: false,
+          data: null,
+          msg: err,
+        });
       });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        ok: false,
-        data: null,
-        msg: err,
-      });
-    });
+  }
 };
 
 let postUsers = (req, res) => {
@@ -120,58 +134,6 @@ let patchUser = (req, res) => {
     });
 };
 
-let postUserTest = (req, res) => {
-  let id = parseInt(req.params.id),
-    data = req.body.data,
-    file = req.files.file;
-
-  if (file == undefined) {
-    return res.status(400).json({ msg: "No file" });
-  } else {
-    let url = file.path;
-
-    url = url.split("/");
-    let urlFile = [url[url.length - 1]];
-
-    data.profile_pic = urlFile[0];
-    return res.status(200).send(console.log(data.data));
-
-    // User.findOneAndUpdate({ id }, { $set: data })
-    // .then((data) => {
-    //   res.status(200).json({
-    //     ok: true,
-    //     data: data,
-    //     msg: "ready",
-    //   });
-    // })
-    // .catch((err) => {
-    //   res.status(500).json({
-    //     ok: false,
-    //     data: null,
-    //     msg: err,
-    //   });
-    // });
-  }
-};
-
-let patchUsers = (req, res) => {
-  //NO FUNCIONA :V
-  let data = req.body.data; //Array de Objetos
-
-  data.forEach((element, i) => {
-    let id = parseInt(element.id);
-
-    User.findOneAndUpdate({ id }, { $set: element });
-    if (i + 1 === data.length) {
-      res.status(200).json({
-        ok: true,
-        data: data,
-        msg: "ready",
-      });
-    }
-  });
-};
-
 let deleteUser = (req, res) => {
   let id = parseInt(req.params.id);
 
@@ -192,6 +154,39 @@ let deleteUser = (req, res) => {
     });
 };
 
+let loginUsers = (req, res) => {
+  let email = req.body.data.email,
+    password = req.body.data.password;
+
+  // let token = jwt.sign({ data: email }, req.sessionID, {
+  //   algorithm: "HS256",
+  //   expiresIn: parseInt(process.env.TIME),
+  // });
+  // console.log(token);
+
+  User.find({ email }).then((data) => {
+    if (data[0].email === email) {
+      bcrypt.compareSync(password, data[0].password)
+        ? res.status(200).json({
+            ok: true,
+            data: data,
+            msg: "ready",
+          })
+        : res.status(500).json({
+            ok: false,
+            data: null,
+            msg: "Incorrect Password",
+          });
+    } else {
+      res.status(404).json({
+        ok: true,
+        data: null,
+        msg: "Email not found",
+      });
+    }
+  });
+};
+
 module.exports = {
   getUsers,
   getUserByID,
@@ -199,8 +194,6 @@ module.exports = {
   postUser,
   postUsers,
   patchUser,
-  patchUsers,
   deleteUser,
-
-  postUserTest,
+  loginUsers,
 };

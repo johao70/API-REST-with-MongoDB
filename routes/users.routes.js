@@ -16,12 +16,10 @@ api.get("/user/:id", userController.getUserByID);
 
 api.post("/user", userController.postUser);
 api.post("/users", userController.postUsers);
+api.post("/login", userController.loginUsers);
 
 api.patch("/user/:id", userController.patchUser);
-api.patch("/users", userController.patchUsers);
 
 api.delete("/user/:id", userController.deleteUser);
-
-api.patch("/user_test/:id", galleryMiddleware, userController.postUserTest);
 
 module.exports = api;
