@@ -21,5 +21,15 @@ api.put(
   galleryMiddleware,
   filesController.modifyFiles
 );
+api.put(
+  "/files/:directory/:urlFile",
+  videosMiddleware,
+  filesController.modifyFiles
+);
+api.put(
+  "/files/:directory/:urlFile",
+  pdfMiddleware,
+  filesController.modifyFiles
+);
 
 module.exports = api;

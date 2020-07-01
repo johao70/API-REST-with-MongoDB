@@ -11,6 +11,8 @@ const userModel = Schema({
   profile_pic: { type: String },
   password: { type: String },
   sessionID: { type: String },
+  createAt: { type: Date },
+  rol: { type: String },
 });
 
 module.exports = mongoose.model("User", userModel);

@@ -3,18 +3,21 @@ const express = require("express"),
 
 let api = express.Router(),
   userController = require("../controllers/users.controller"),
-  galleryMiddleware = multiParty({ uploadDir: "./files/gallery" });
+  passwordController = require("../controllers/password.controller"),
+  authController = require("../controllers/auth.controller"),
+  rolController = require("../controllers/rol.controller");
+// galleryMiddleware = multiParty({ uploadDir: "./files/gallery" });
 
 //users ENDPOINT
-api.get("/", (req, res) => {
-  res.send("Hola API");
-});
-
-api.get("/users", userController.getUsers);
+api.get(
+  "/users",
+  [authController.auth, rolController.adminRol],
+  userController.getUsers
+);
 api.get("/users/:name", userController.getUserByName);
 api.get("/user/:id", userController.getUserByID);
 
-api.post("/user", userController.postUser);
+api.post("/user", passwordController.encodePassword, userController.postUser);
 api.post("/users", userController.postUsers);
 api.post("/login", userController.loginUsers);
 

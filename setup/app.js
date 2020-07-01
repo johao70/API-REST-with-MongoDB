@@ -53,9 +53,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/test1", (req, res) => {
+app.get("/", (req, res) => {
   res.send(
-    `Number of visits in this page: ${req.session.views["/test1"]} times, session: ${req.sessionID}`
+    `Your session: ${req.sessionID}, number of visits: ${req.session.views["/"]} times`
   );
 });
 
