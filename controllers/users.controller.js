@@ -152,26 +152,24 @@ let loginUsers = (req, res) => {
     .then((data) => {
       if (data[0].email === email) {
         let tokenBody = {
+            _id: data[0]._id,
+            name: data[0].name,
             email: data[0].email,
             rol: data[0].rol,
-            name: data[0].name,
           },
-          token = jwt.sign({ data: tokenBody }, req.sessionID, {
+          token = jwt.sign({ data: tokenBody }, process.env.KEY_JWT, {
             algorithm: "HS256",
-            expiresIn: 60,
+            expiresIn: 600000,
           });
 
         bcrypt.compareSync(password, data[0].password)
           ? res.status(200).json({
               ok: true,
-              data: data,
-              msg: "ready",
               token,
             })
           : res.status(404).json({
               ok: false,
-              data: null,
-              msg: "Incorrect Password",
+              msg: "Incorrect password",
             });
       }
     })

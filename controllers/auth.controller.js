@@ -4,18 +4,19 @@ const jwt = require("jsonwebtoken");
 let auth = (req, res, next) => {
   let token = req.headers.authorization || null;
 
-  jwt.verify(token, req.sessionID, (err, decode) => {
+  jwt.verify(token, process.env.KEY_JWT, (err, decode) => {
     if (err) {
       return res.status(400).json({
         data: err,
         msg: "Invalid token",
       });
     } else {
-      let token = jwt.sign({ data: decode.data }, req.sessionID, {
+      let token = jwt.sign({ data: decode.data }, process.env.KEY_JWT, {
         algorithm: "HS256",
-        expiresIn: 60,
+        expiresIn: 600000,
       });
 
+      console.log(decode);
       req.decode = decode;
       req.token = token;
 

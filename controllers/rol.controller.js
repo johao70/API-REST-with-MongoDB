@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 let adminRol = (req, res, next) => {
   let token = req.headers.authorization || null;
 
-  jwt.verify(token, req.sessionID, (err, decode) => {
+  jwt.verify(token, process.env.KEY_JWT, (err, decode) => {
     if (err) {
       return res.status(400).json({
         data: err,

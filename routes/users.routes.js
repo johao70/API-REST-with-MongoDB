@@ -11,7 +11,7 @@ let api = express.Router(),
 //users ENDPOINT
 api.get(
   "/users",
-  [authController.auth, rolController.adminRol],
+  // [authController.auth, rolController.adminRol],
   userController.getUsers
 );
 api.get("/users/:name", userController.getUserByName);
