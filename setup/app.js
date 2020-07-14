@@ -17,7 +17,7 @@ let app = express(),
     saveUninitialized: true,
     name: "sessionID",
     cookie: {
-      httpOnly: false,
+      httpOnly: true,
       maxAge: parseInt(process.env.TIME),
     },
   },

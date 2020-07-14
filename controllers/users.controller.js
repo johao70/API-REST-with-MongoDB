@@ -4,6 +4,7 @@ const fs = require("fs"),
   jwt = require("jsonwebtoken");
 
 let getUsers = (req, res) => {
+  console.log(req);
   User.find()
     .then((data) => {
       res.status(200).json({
@@ -43,7 +44,7 @@ let getUserByID = (req, res) => {
 };
 
 let getUserByName = (req, res) => {
-  let name = req.params.name;
+  let { name } = req.params;
 
   User.find({ name })
     .then((data) => {
@@ -63,14 +64,15 @@ let getUserByName = (req, res) => {
 };
 
 let postUser = (req, res) => {
-  let user = req.body.user;
+  let { data } = req.body;
 
-  User.create(user)
+  User.create(data)
     .then((data) => {
       res.status(200).json({
         ok: true,
         data: data,
         msg: "ready",
+        token: req.token,
       });
     })
     .catch((err) => {
@@ -83,7 +85,7 @@ let postUser = (req, res) => {
 };
 
 let postUsers = (req, res) => {
-  let data = req.body.data; //Array de Objetos
+  let { data } = req.body; //Array de Objetos
 
   User.insertMany(data)
     .then((data) => {
@@ -144,32 +146,30 @@ let deleteUser = (req, res) => {
 };
 
 let loginUsers = (req, res) => {
-  let data = req.body.data,
+  let { data } = req.body,
     email = data.email,
     password = data.password;
 
   User.find({ email })
     .then((data) => {
       if (data[0].email === email) {
-        let tokenBody = {
-            _id: data[0]._id,
-            name: data[0].name,
-            email: data[0].email,
-            rol: data[0].rol,
-          },
-          token = jwt.sign({ data: tokenBody }, process.env.KEY_JWT, {
-            algorithm: "HS256",
-            expiresIn: 600000,
-          });
-
+        let token;
         bcrypt.compareSync(password, data[0].password)
-          ? res.status(200).json({
+          ? ((token = jwt.sign({ data: data[0] }, req.sessionID, {
+              algorithm: "HS256",
+              expiresIn: 120,
+            })),
+            res.status(200).json({
               ok: true,
+              data: null,
+              msg: "User OK",
               token,
-            })
+            }))
           : res.status(404).json({
               ok: false,
+              data: null,
               msg: "Incorrect password",
+              token: null,
             });
       }
     })

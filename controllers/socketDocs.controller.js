@@ -2,9 +2,20 @@ let manageDocs = (http) => {
   let io = require("socket.io")(http),
     socketJwt = require("socketio-jwt");
 
+  // io.use(
+  //   socketJwt.authorize({
+  //     secret: process.env.KEY_JWT,
+  //     handshake: true,
+  //   })
+  // );
+
   io.use(
     socketJwt.authorize({
-      secret: process.env.KEY_JWT,
+      secret: (req, decodedToken, callback) => {
+        console.log(req._query.sessionID);
+        callback(null, req._query.sessionID);
+        //.then() hacer algo cuando funcione .catch() en caso de error
+      },
       handshake: true,
     })
   );
@@ -12,7 +23,7 @@ let manageDocs = (http) => {
   const getData = {}; //lista de salas/documentos
 
   io.on("connection", (socket) => {
-    let previousId, previousName;
+    let previousId;
 
     const safeJoin = (currentId) => {
       socket.leave(previousId);
@@ -20,17 +31,11 @@ let manageDocs = (http) => {
       previousId = currentId;
     };
 
-    const safeName = (currentName) => {
-      socket.leave(previousName);
-      socket.join(currentName);
-      previousName = currentName;
-    };
-
+    console.log(socket.handshake);
     socket.on("getDoc", (id) => {
+      // if (doc.docPassword == "12345") {
       safeJoin(id);
       socket.emit("manageData", getData[id]);
-      // if (doc.docPassword == "12345") {
-
       // } else {
       //   console.log("Invalid password");
       // }
@@ -52,11 +57,6 @@ let manageDocs = (http) => {
     socket.on("editDoc", (doc) => {
       getData[doc.id] = doc;
       socket.to(doc.id).emit("manageData", doc);
-    });
-
-    socket.on("lastUserChange", (userName) => {
-      safeName(userName);
-      socket.emit("userName", userName);
     });
 
     socket.on("disconnect", () => {

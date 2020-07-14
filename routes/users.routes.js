@@ -9,13 +9,9 @@ let api = express.Router(),
 // galleryMiddleware = multiParty({ uploadDir: "./files/gallery" });
 
 //users ENDPOINT
-api.get(
-  "/users",
-  // [authController.auth, rolController.adminRol],
-  userController.getUsers
-);
+api.get("/users", userController.getUsers);
 api.get("/users/:name", userController.getUserByName);
-api.get("/user/:id", userController.getUserByID);
+api.get("/user/:id", [authController.auth], userController.getUserByID);
 
 api.post("/user", passwordController.encodePassword, userController.postUser);
 api.post("/users", userController.postUsers);

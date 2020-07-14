@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 let adminRol = (req, res, next) => {
   let token = req.headers.authorization || null;
 
-  jwt.verify(token, process.env.KEY_JWT, (err, decode) => {
+  jwt.verify(token, req.sessionID, (err, decode) => {
     if (err) {
       return res.status(400).json({
         data: err,
@@ -16,6 +16,7 @@ let adminRol = (req, res, next) => {
           next();
           break;
         default:
+          console.log("You don't have permissions");
           res.status(401).json({
             ok: false,
             data: null,
